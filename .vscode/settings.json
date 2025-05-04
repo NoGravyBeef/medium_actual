@@ -1,0 +1,8 @@
+{
+    "editor.formatOnSave": true,
+    "[dart]": {
+        "editor.formatOnSave": true
+    },
+    "dart.lineLength": 75,
+    "cmake.sourceDirectory": "/Users/lee-minyoup/workspace/medium_actual/linux"
+}
