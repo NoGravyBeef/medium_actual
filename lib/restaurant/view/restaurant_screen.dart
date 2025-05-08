@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:medium_actual/common/const/data.dart';
 import 'package:medium_actual/restaurant/component/restaurant_card.dart';
 import 'package:medium_actual/restaurant/model/restaurant_model.dart';
+import 'package:medium_actual/restaurant/view/restaurant_detail_screen.dart';
 
 class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({super.key});
@@ -41,17 +42,26 @@ class RestaurantScreen extends StatelessWidget {
                   final item = snapshot.data!['data'][index];
                   final pItem2 = RestaurantModel.fromJson(json: item);
 
-                  return Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.blueAccent),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 20,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => RestaurantDetailScreen(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      child: RestaurantCard.fromModel(model: pItem2),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 20,
+                        ),
+                        child: RestaurantCard.fromModel(model: pItem2),
+                      ),
                     ),
                   );
                 },
