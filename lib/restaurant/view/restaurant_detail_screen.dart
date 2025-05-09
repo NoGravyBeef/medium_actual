@@ -1,34 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:medium_actual/common/const/data.dart';
 import 'package:medium_actual/common/layout/default_layout.dart';
 import 'package:medium_actual/product/component/product_card.dart';
 import 'package:medium_actual/restaurant/component/restaurant_card.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:medium_actual/restaurant/model/restaurant_detail_model.dart';
 
 class RestaurantDetailScreen extends StatelessWidget {
-  const RestaurantDetailScreen({super.key});
+  final String id;
+
+  const RestaurantDetailScreen({super.key, required this.id});
+
+  Future<Map<String, dynamic>> getRestaurantDetail() async {
+    final dio = Dio();
+    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
+
+    final resp = await dio.get(
+      'http://$ip/restaurant/${id}',
+      options: Options(headers: {'authorization': 'Bearer $accessToken'}),
+    );
+
+    print(resp);
+    return resp.data;
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
       title: '불타는 떡볶이',
-      child: CustomScrollView(
-        slivers: [renderTop(), renderLabel(), renderProducts()],
+      child: FutureBuilder<Map<String, dynamic>>(
+        future: getRestaurantDetail(),
+        builder: (_, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+          print(snapshot.data);
+          if (!snapshot.hasData) {
+            return Container();
+          }
+
+          final item = RestaurantDetailModel.fromJson(
+            json: snapshot.data!,
+          );
+
+          return CustomScrollView(
+            slivers: [
+              renderTop(model: item),
+              renderLabel(),
+              renderProducts(item),
+            ],
+          );
+        },
       ),
     );
   }
 
-  SliverToBoxAdapter renderTop() {
+  SliverToBoxAdapter renderTop({required RestaurantDetailModel model}) {
     return SliverToBoxAdapter(
-      child: RestaurantCard(
-        image: Image.asset('asset/img/food/ddeok_bok_gi.jpg'),
-        name: '불타는 떡볶이',
-        tags: ['떡볶이', '맛있음', '치즈'],
-        ratingsCount: 100,
-        deliveryTime: 30,
-        deliveryFee: 3000,
-        ratings: 4.76,
-        isDetail: true,
-        detail: '맛있는 떡볶이',
-      ),
+      child: RestaurantCard.fromModel(model: model, isDetail: true),
     );
   }
 
@@ -44,7 +71,7 @@ class RestaurantDetailScreen extends StatelessWidget {
     );
   }
 
-  SliverPadding renderProducts() {
+  SliverPadding renderProducts(RestaurantDetailModel item) {
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverList(
